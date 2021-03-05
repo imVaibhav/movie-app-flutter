@@ -6,7 +6,7 @@ import '../providers/movieProvider.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 
 class Home extends StatefulWidget {
-  static const routeName = '/';
+  static const routeName = '/home';
   Home({Key key}) : super(key: key);
 
   @override
@@ -59,8 +59,9 @@ class _HomeState extends State<Home> {
           },
         ),
         appBar: AppBar(
+          backgroundColor: Colors.blueGrey[700],
           centerTitle: true,
-          title: Text('In Thearters'),
+          title: Text('Now Playing'),
         ),
         body: _isLoading
             //show spinner if fetching
@@ -71,9 +72,7 @@ class _HomeState extends State<Home> {
   }
 
   Widget _displayList() {
-    print(Provider.of<MovieProvider>(context).movies.length);
     // Later use lazy loading package
-
     return LazyLoadScrollView(
       scrollOffset: 200,
       onEndOfPage: () => Provider.of<MovieProvider>(
@@ -88,14 +87,10 @@ class _HomeState extends State<Home> {
       child: ListView.builder(
         itemCount: Provider.of<MovieProvider>(context).movies.length,
         itemBuilder: (context, index) {
-          return _buildMovieCard(
+          return MovieCard(
               Provider.of<MovieProvider>(context).getElementAt(index));
         },
       ),
     );
-  }
-
-  Widget _buildMovieCard(Movie element) {
-    return MovieCard(element);
   }
 }

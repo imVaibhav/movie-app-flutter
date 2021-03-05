@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import './layouts/home.dart';
+import './layouts/movieDetails.dart';
+import './layouts/splashScreen.dart';
 import 'package:provider/provider.dart';
+
 import 'providers/movieProvider.dart';
 
 void main() => runApp(MyApp());
@@ -12,25 +15,15 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => MovieProvider(),
-        )
+        ),
       ],
       child: MaterialApp(
         title: 'IMDb',
         routes: {
-          // '/': (context) => SpalshScreen(),
           Home.routeName: (context) => Home(),
-          // '/movieDetails': (context) => MovieDetails(),
+          MovieDetails.routeName: (context) => MovieDetails(),
         },
-        // home: Scaffold(
-        //   appBar: AppBar(
-        //     title: Text('Material App Bar'),
-        //   ),
-        //   body: Center(
-        //     child: Container(
-        //       child: Text('Hello World'),
-        //     ),
-        //   ),
-        // ),
+        home: SplashScreen(),
       ),
     );
   }

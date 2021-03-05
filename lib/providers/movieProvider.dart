@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
+import 'package:siplyAssignment/utility/constants.dart';
 import '../models/movieModel.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
-enum status { ERROR, DATA_RETRIVED, FETCHING, NO_DATA }
 
 class MovieProvider with ChangeNotifier {
   List<Movie> movies = [];
@@ -23,8 +22,10 @@ class MovieProvider with ChangeNotifier {
     // if not  Retrive from localstorage
     // store it in _movies list
 
-    var url =
-        'https://api.themoviedb.org/3/movie/now_playing?api_key=34a9c8f2da697801997f9d61c4dd82cd&language=en-US&page=$page';
+    var url = BASE_URL +
+        'now_playing?api_key=' +
+        API_KEY +
+        '&language=en-US&page=$page';
 
     try {
       final response = await http.get(url);
