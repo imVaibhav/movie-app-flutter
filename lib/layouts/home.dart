@@ -71,24 +71,58 @@ class _HomeState extends State<Home> {
             : _displayList());
   }
 
+  Widget _showEror() {
+    return Center(
+      child: Container(
+        margin: EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Somthing went wrong'),
+            FlatButton(
+              child: Text('Retry'),
+              color: Colors.blueAccent,
+              textColor: Colors.white,
+              onPressed: () => Provider.of<MovieProvider>(
+                context,
+                listen: false,
+              ).fetchMovies(),
+            ),
+          ],
+        ),
+      ),
+    );
+    ;
+  }
+
   Widget _displayList() {
-    // Later use lazy loading package
+    // Check if List is empty
+    // if yes then show error screen
+    if (Provider.of<MovieProvider>(context).movies.isEmpty) {
+      return _showEror();
+    }
+
     return LazyLoadScrollView(
       scrollOffset: 200,
       onEndOfPage: () => Provider.of<MovieProvider>(
         context,
         listen: false,
       ).fetchMovies().then((_) => {
-            setState(() {
-              // To remove loading widget
-              _isLoading = false;
-            })
+            // Only for initial load
+            if (_isLoading)
+              {
+                setState(() {
+                  // To remove loading widget
+                  _isLoading = false;
+                })
+              }
           }),
       child: ListView.builder(
         itemCount: Provider.of<MovieProvider>(context).movies.length,
         itemBuilder: (context, index) {
           return MovieCard(
-              Provider.of<MovieProvider>(context).getElementAt(index));
+              key: ValueKey(index),
+              movie: Provider.of<MovieProvider>(context).getElementAt(index));
         },
       ),
     );

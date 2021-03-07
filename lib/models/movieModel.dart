@@ -10,7 +10,7 @@ class Movie {
     discription = json['overview'];
     id = json['id'].toString();
     releaseDate = json['release_date'];
-    posterURL = json['poster_path'];
+    posterURL = json['poster_path'] ?? '';
   }
 
   String toString() {

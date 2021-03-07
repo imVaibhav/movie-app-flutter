@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class MovieCard extends StatelessWidget {
-  final movie;
+import '../utility/constants.dart';
+import '../models/movieModel.dart';
 
-  Color mainColor = const Color(0xff3C3261);
-  var image_url = 'https://image.tmdb.org/t/p/w500/';
-  MovieCard(this.movie);
+class MovieCard extends StatelessWidget {
+  Movie movie;
+
+  MovieCard({Key key, this.movie}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class MovieCard extends StatelessWidget {
                     width: 70.0,
                     height: 70.0,
                     child: CachedNetworkImage(
-                      imageUrl: image_url + movie.posterURL,
+                      imageUrl: IMAGE_URL + movie.posterURL,
                       placeholder: (context, url) =>
                           CircularProgressIndicator(),
                       errorWidget: (context, url, error) => Icon(Icons.error),

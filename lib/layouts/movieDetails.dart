@@ -1,14 +1,14 @@
 import 'dart:async';
-
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:siplyAssignment/utility/constants.dart';
-
-import '../models/movieDetailsModel.dart';
-
-import 'dart:convert';
 import 'package:http/http.dart' as http;
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../utility/constants.dart';
+import '../models/movieDetailsModel.dart';
 
 class MovieDetails extends StatefulWidget {
   static const routeName = '/movieDetails';
@@ -21,22 +21,17 @@ class MovieDetails extends StatefulWidget {
 class _MovieDetailsState extends State<MovieDetails> {
   String movieID;
   MovieDetails movieDetail;
-  static const image_url = 'https://image.tmdb.org/t/p/w500/';
-
-  @override
-  void initState() {
-    // Future.delayed(Duration.zero, () {
-    //   movieID = ModalRoute.of(context).settings.arguments;
-    //   // Provider.of<MovieDetailsProvider>(context).fetchMovieDetails(movieID);
-    // });
-
-    super.initState();
-  }
+  bool _initLoad = true;
 
   @override
   void didChangeDependencies() {
-    movieID = ModalRoute.of(context).settings.arguments;
-    super.didChangeDependencies();
+    // To make sure id is assigned only for one time (before initial render)
+    if (_initLoad) {
+      movieID = ModalRoute.of(context).settings.arguments;
+      super.didChangeDependencies();
+    }
+
+    _initLoad = false;
   }
 
   @override
@@ -66,27 +61,38 @@ class _MovieDetailsState extends State<MovieDetails> {
                   ),
                 );
               } else {
-                return CupertinoActivityIndicator();
+                return Center(
+                    child: CupertinoActivityIndicator(
+                  radius: 20.0,
+                ));
               }
             }));
   }
 
-  Widget show(MovieDetailsModel movie) {
-    return Center(child: Text(movie.title));
-  }
-
   Future<MovieDetailsModel> _fetchMovieDetails(String movieID) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
     var url = BASE_URL + '$movieID?api_key=' + API_KEY + '&language=en-US';
 
-    final response = await http.get(url);
-    final extractedData = json.decode(response.body);
+    try {
+      final response = await http.get(url);
+      final extractedData = json.decode(response.body);
 
-    var details = MovieDetailsModel.fromJson(extractedData);
-    return details;
+      var details = MovieDetailsModel.fromJson(extractedData);
+
+      // Saving movie details
+      await pref.setString(movieID, response.body);
+      return details;
+    } catch (error) {
+      var cache = pref.getString(movieID);
+
+      //if not found throw again
+      if (cache == null) throw error;
+
+      return MovieDetailsModel.fromJson(json.decode(cache));
+    }
   }
 
   Widget _movieDetails(MovieDetailsModel movie) {
-    //var movie = Provider.of<MovieDetailsProvider>(context).details;
     return CustomScrollView(
       slivers: <Widget>[
         SliverAppBar(
@@ -96,8 +102,14 @@ class _MovieDetailsState extends State<MovieDetails> {
           flexibleSpace: FlexibleSpaceBar(
             title: Text(movie.title),
             background: CachedNetworkImage(
-              imageUrl: image_url + movie.posterPath,
-              placeholder: (context, url) => CircularProgressIndicator(),
+              imageUrl: IMAGE_URL + movie.posterPath,
+              placeholder: (context, url) => SizedBox(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.black45,
+                ),
+                width: 10,
+                height: 10,
+              ),
               errorWidget: (context, url, error) => Icon(Icons.error),
               width: double.infinity,
             ),
@@ -106,15 +118,6 @@ class _MovieDetailsState extends State<MovieDetails> {
         SliverList(
           delegate: SliverChildListDelegate(
             [
-              SizedBox(height: 10),
-              // Text(
-              //   '\$${movie.popularity}',
-              //   style: TextStyle(
-              //     color: Colors.grey,
-              //     fontSize: 20,
-              //   ),
-              //   textAlign: TextAlign.center,
-              // ),
               SizedBox(
                 height: 10,
               ),
@@ -190,6 +193,12 @@ class _MovieDetailsState extends State<MovieDetails> {
                           )
                         ]),
                   )),
+
+              // Below size box is just for SliverAppBar demo
+              // Scroll down to see
+              SizedBox(
+                height: 700,
+              )
             ],
           ),
         ),

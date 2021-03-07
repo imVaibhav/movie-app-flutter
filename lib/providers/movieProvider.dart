@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:provider/provider.dart';
 import 'package:siplyAssignment/utility/constants.dart';
 import '../models/movieModel.dart';
 import 'package:http/http.dart' as http;
@@ -10,17 +9,12 @@ class MovieProvider with ChangeNotifier {
   List<Movie> movies = [];
 
   Future<void> fetchMovies() async {
-    // Make network call and store it in _movies list
-    // Calculate page no by dividing current list length by total items per page
+    // Make network call and store it in movies list
+    // Calculate next page by dividing current list length by total items in page
     var page = 1;
     if (movies.length > 0) {
       page = (movies.length / 20).round() + 1;
     }
-    // if request succuseful store it in localStorage
-    //    - update localstoage
-
-    // if not  Retrive from localstorage
-    // store it in _movies list
 
     var url = BASE_URL +
         'now_playing?api_key=' +
@@ -40,14 +34,19 @@ class MovieProvider with ChangeNotifier {
         tempList.add(Movie.fromJSON(element));
       });
 
+      // update movies list
       movies = [...movies, ...tempList];
       notifyListeners();
 
+      // Update localStorage
       _writeToLocalStorage();
     } catch (error) {
+      // Request Failed
+      // Retrieve list from localstorage
+      // store it in movies list
       if (movies.isEmpty) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        // Fetching list from storage if not found then empty list
+        
         var list = prefs.getStringList('movie_list') ?? [];
 
         list.forEach((element) {
