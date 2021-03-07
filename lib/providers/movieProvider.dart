@@ -7,14 +7,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MovieProvider with ChangeNotifier {
   List<Movie> movies = [];
-
+  var _totalPages = 3;
   Future<void> fetchMovies() async {
     // Make network call and store it in movies list
     // Calculate next page by dividing current list length by total items in page
+
     var page = 1;
     if (movies.length > 0) {
       page = (movies.length / 20).round() + 1;
     }
+
+    //If page index exceeds page limit then ignore
+    if ((_totalPages != null) && (page > _totalPages)) return;
 
     var url = BASE_URL +
         'now_playing?api_key=' +
@@ -28,6 +32,8 @@ class MovieProvider with ChangeNotifier {
       if (extractedData['results'] == null) {
         return;
       }
+
+      _totalPages = extractedData['total_pages'];
 
       final List<Movie> tempList = [];
       extractedData['results'].forEach((element) {
@@ -46,7 +52,7 @@ class MovieProvider with ChangeNotifier {
       // store it in movies list
       if (movies.isEmpty) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        
+
         var list = prefs.getStringList('movie_list') ?? [];
 
         list.forEach((element) {

@@ -5,7 +5,7 @@ import '../utility/constants.dart';
 import '../models/movieModel.dart';
 
 class MovieCard extends StatelessWidget {
-  Movie movie;
+  final Movie movie;
 
   MovieCard({Key key, this.movie}) : super(key: key);
 

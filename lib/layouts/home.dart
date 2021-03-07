@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:siplyAssignment/models/movieModel.dart';
-import 'package:siplyAssignment/widget/movie_card.dart';
-import '../providers/movieProvider.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
+
+import '../widget/movie_card.dart';
+import '../providers/movieProvider.dart';
 
 class Home extends StatefulWidget {
   static const routeName = '/home';
@@ -92,7 +92,6 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
-    ;
   }
 
   Widget _displayList() {
